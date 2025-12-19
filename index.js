@@ -27,9 +27,24 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
-        
+        const db = client.db('online_ticket_booking_db');
+        const ticketsCollection = db.collection('tickets');
+
+        // Tickets save APi in db 
+        app.post('/tickets', async(req, res) =>{
+            const ticketData = req.body;
+            console.log(ticketData);
+            
+            const result = await ticketsCollection.insertOne(ticketData);
+            res.send(result)
+        })
+
+        app.get('/tickets', async(req, res) =>{
+            const result = await ticketsCollection.find().toArray();
+            res.send(result)
+        })
 
 
 
