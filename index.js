@@ -3,7 +3,7 @@ const cors = require('cors')
 const app = express();
 require('dotenv').config();
 const port = process.env.PORT || 3000
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 // Middleware
 app.use(express.json());
@@ -31,21 +31,47 @@ async function run() {
 
         const db = client.db('online_ticket_booking_db');
         const ticketsCollection = db.collection('tickets');
+        const bookingCollection = db.collection('bookings')
 
         // Tickets save APi in db 
-        app.post('/tickets', async(req, res) =>{
+        app.post('/tickets', async (req, res) => {
             const ticketData = req.body;
-            console.log(ticketData);
-            
+            // console.log(ticketData);
+
             const result = await ticketsCollection.insertOne(ticketData);
             res.send(result)
         })
 
-        app.get('/tickets', async(req, res) =>{
+        // Ticket Data get এর API
+        app.get('/tickets', async (req, res) => {
             const result = await ticketsCollection.find().toArray();
             res.send(result)
         })
 
+        // Single Ticket এর Data পাওয়ার API
+        app.get('/tickets/:id', async (req, res) => {
+            const id = req.params.id
+            const result = await ticketsCollection.findOne({ _id: new ObjectId(id) });
+            res.send(result)
+        })
+
+
+        // User Ticket Booking
+        app.post('/user-booked-tickets', async (req, res) => {
+            const bookingData = req.body;
+            // console.log(ticketData);
+
+            const result = await bookingCollection.insertOne(bookingData);
+            res.send(result)
+        })
+
+        // Get User Booked Ticket by email
+        app.get('/user-booked-tickets/:email', async (req, res) => {
+            const email = req.params.email;
+            console.log(email);
+            const result = await bookingCollection.find({ BookingEmail: email }).toArray();
+            res.send(result)
+        })
 
 
         // Send a ping to confirm a successful connection
